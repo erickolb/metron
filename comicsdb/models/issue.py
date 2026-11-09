@@ -18,6 +18,7 @@ from PIL import Image
 from simple_history.models import HistoricalRecords
 from sorl.thumbnail import ImageField
 
+from comicsdb.cover_hash import hash_integer_field
 from comicsdb.models.arc import Arc
 from comicsdb.models.attribution import Attribution
 from comicsdb.models.character import Character
@@ -72,6 +73,7 @@ class Issue(CommonInfo):
     page = models.PositiveSmallIntegerField(_("Page Count"), null=True, blank=True)
     image = ImageField(_("Cover"), upload_to="issue/%Y/%m/%d/", blank=True)
     cover_hash = models.CharField(_("Cover Hash"), max_length=16, blank=True)
+    cover_hash_int = hash_integer_field()
     desc_is_solicitation = models.BooleanField(
         _("Description is a solicitation"),
         default=False,
@@ -90,7 +92,10 @@ class Issue(CommonInfo):
     edited_by = models.ForeignKey(
         CustomUser, default=1, on_delete=models.SET_DEFAULT, related_name="issues_edited"
     )
-    history = HistoricalRecords(m2m_fields=[arcs, characters, teams, universes, reprints])
+    history = HistoricalRecords(
+        m2m_fields=[arcs, characters, teams, universes, reprints],
+        excluded_fields=["cover_hash_int"],
+    )
 
     objects = models.Manager()
     graphic_novels = GraphicNovelManager()
@@ -236,6 +241,9 @@ def generate_cover_hash(instance: Issue) -> str:
     except OSError as e:
         LOGGER.error("Unable to generate cover hash for '%s': %s", instance, e)
         return ""
+    finally:
+        if instance.image._committed:
+            instance.image.close()
 
 
 def pre_save_cover_hash(sender, instance: Issue, *args, **kwargs) -> None:

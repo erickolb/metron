@@ -2647,3 +2647,12 @@ For questions, issues, or feature requests:
 - Advanced filtering and pagination
 - Image upload support
 - External ID mapping
+
+## Experimental nearest-cover search
+
+On `codex/perceptual-hash-experiments`, authenticated clients can call
+`GET /api/issue/cover-search/?cover_hash=0123456789abcdef` for up to eight closest
+distinct comics by standard/variant cover Hamming distance. Results use the usual
+issue-list fields plus `distance` and `matched_cover`. Optional timing is returned
+under `diagnostics.database_match_ms`; disable it with
+`COVER_SEARCH_DIAGNOSTICS=False`. See the complete [experiment contract and setup](../docs/COVER_HASH_EXPERIMENT.md).

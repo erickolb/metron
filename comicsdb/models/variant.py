@@ -6,7 +6,8 @@ from django.db import models
 from djmoney.models.fields import MoneyField
 from sorl.thumbnail import ImageField
 
-from comicsdb.models.issue import Issue
+from comicsdb.cover_hash import hash_integer_field
+from comicsdb.models.issue import Issue, generate_cover_hash
 from comicsdb.validators import clean_upc, validate_upc_format
 
 LOGGER = logging.getLogger(__name__)
@@ -15,6 +16,8 @@ LOGGER = logging.getLogger(__name__)
 class Variant(models.Model):
     issue = models.ForeignKey(Issue, on_delete=models.CASCADE, related_name="variants")
     image = ImageField("Variant Cover", upload_to="variants/%Y/%m/%d/")
+    cover_hash = models.CharField("Cover Hash", max_length=16, blank=True, editable=False)
+    cover_hash_int = hash_integer_field()
     name = models.CharField("Name", max_length=255, blank=True)
     price = MoneyField("Price", max_digits=8, decimal_places=2, blank=True, null=True)
     sku = models.CharField("Distributor SKU", max_length=12, blank=True)
@@ -36,6 +39,16 @@ class Variant(models.Model):
                 else:
                     LOGGER.info("Replacing '%s' with 'None'.", this.image)
                 this.image.delete(save=False)
+        if self.image and (
+            not self.pk
+            or not self.cover_hash
+            or not Variant.objects.filter(pk=self.pk, image=self.image.name).exists()
+        ):
+            self.cover_hash = generate_cover_hash(self)
+        elif not self.image:
+            self.cover_hash = ""
+        if kwargs.get("update_fields") is not None:
+            kwargs["update_fields"] = set(kwargs["update_fields"]) | {"cover_hash"}
         return super().save(*args, **kwargs)
 
     def clean(self) -> None:

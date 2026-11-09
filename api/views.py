@@ -36,6 +36,7 @@ from api.cache import (
     detail_cache_key,
     list_cache_key,
 )
+from api.cover_search import CoverSearchInput, CoverSearchResponseSerializer, closest_covers
 from api.v1_0.serializers import (
     ArcListSerializer,
     ArcReadSerializer,
@@ -656,6 +657,47 @@ class IssueViewSet(
         # annotated field is selected. This lookup only needs the row's own
         # pk/modified, so skip the annotation entirely.
         return Issue.objects.all()
+
+    @extend_schema(
+        parameters=[CoverSearchInput],
+        responses={200: CoverSearchResponseSerializer},
+        filters=False,
+        description="Eight closest distinct comics by 64-bit cover Hamming distance. "
+        "Includes matching variant metadata and optional experimental diagnostics.",
+    )
+    @action(
+        detail=False, methods=["get"], url_path="cover-search", permission_classes=[IsAuthenticated]
+    )
+    def cover_search(self, request):
+        inputs = CoverSearchInput(data=request.query_params)
+        inputs.is_valid(raise_exception=True)
+        cover_hash = inputs.validated_data["cover_hash"].lower()
+        matches, database_ms = closest_covers(cover_hash)
+        issues = {
+            issue.pk: issue
+            for issue in Issue.objects.filter(pk__in=[row[0] for row in matches]).select_related(
+                "series", "series__series_type"
+            )
+        }
+        results = []
+        for issue_id, distance, variant_id, image, matched_hash in matches:
+            if issue_id not in issues:
+                continue  # A concurrent deletion must not break the whole response.
+            row = dict(IssueListSerializer(issues[issue_id], context={"request": request}).data)
+            image_url = Issue._meta.get_field("image").storage.url(image) if image else None
+            row.update(
+                distance=distance,
+                matched_cover={
+                    "variant_id": variant_id,
+                    "image": request.build_absolute_uri(image_url) if image_url else None,
+                    "cover_hash": matched_hash,
+                },
+            )
+            results.append(row)
+        payload = {"cover_hash": cover_hash, "count": len(results), "results": results}
+        if database_ms is not None:
+            payload["diagnostics"] = {"database_match_ms": round(database_ms, 3)}
+        return Response(payload, headers={"Cache-Control": "no-store"})
 
     def get_queryset(self):
         if self.action == "list":

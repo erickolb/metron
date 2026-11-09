@@ -453,3 +453,6 @@ else:
     ]
 
     DEBUG_TOOLBAR_CONFIG = {"INTERCEPT_REDIRECTS": False}
+
+# Experimental cover-search instrumentation; disable without changing match results.
+COVER_SEARCH_DIAGNOSTICS = config("COVER_SEARCH_DIAGNOSTICS", default=True, cast=bool)

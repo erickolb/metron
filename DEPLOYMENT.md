@@ -1213,3 +1213,43 @@ systemctl --user restart metron-postgres metron-redis metron-web metron-anubis m
 | Podman named volumes | Postgres and Redis data (managed by Podman) |
 | `/etc/fail2ban/filter.d/` | fail2ban filter definitions |
 | `/etc/fail2ban/jail.d/metron.conf` | fail2ban jail configuration |
+
+## Updating the cover-hash experiment
+
+These instructions apply only when deliberately running branch
+`codex/perceptual-hash-experiments`. Back up PostgreSQL using the database-backup
+procedure above before migrating. The generated integer columns can rewrite/lock
+large issue tables; schedule a maintenance window. The Android client is a separate
+Android Studio project and is not deployed in the server container.
+
+For the existing rootless Podman/Quadlet setup, run as the `metron` deployment user:
+
+```sh
+cd ~/metron
+git switch codex/perceptual-hash-experiments
+git pull --ff-only
+podman build -t localhost/metron:latest .
+systemctl --user stop metron-web
+podman run --rm --network host \
+  --env-file "$HOME/.config/containers/metron.env" \
+  localhost/metron:latest python manage.py migrate
+systemctl --user start metron-web
+podman exec metron-web python manage.py backfill_variant_hashes
+```
+
+If migration fails, keep the web service stopped until repaired; retain the backup.
+Backfill may take time and read S3 artwork. Missing variant images are reported and
+can be repaired before rerunning the command; those variants do not participate
+until hashed. Confirm an authenticated `/api/issue/cover-search/` request returns
+ordered results with no more than eight distinct issues, and test both a standard
+cover and a variant. This branch defaults `COVER_SEARCH_DIAGNOSTICS=True`; set it to
+`False` in the deployment environment and recreate/restart the container to omit
+timing. Use `vi` for editing that environment file.
+
+For a Docker-based installation, apply the same backup, maintenance, migration,
+and backfill order using its existing service configuration; on
+`astralplane.chateaulore.net`, invoke Docker with `sudo docker`, including
+`sudo docker compose`. Do not replace its environment or persistent volumes.
+
+See [the experiment guide](docs/COVER_HASH_EXPERIMENT.md) for the API contract,
+performance measurement boundaries, and Android/local development setup.
