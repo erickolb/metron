@@ -456,3 +456,11 @@ else:
 
 # Experimental cover-search instrumentation; disable without changing match results.
 COVER_SEARCH_DIAGNOSTICS = config("COVER_SEARCH_DIAGNOSTICS", default=True, cast=bool)
+
+# TEMPORARY: remove the notetaker and these settings before an upstream merge.
+COVER_EXPERIMENT_NOTETAKER_ENABLED = config(
+    "COVER_EXPERIMENT_NOTETAKER_ENABLED", default=True, cast=bool
+)
+COVER_EXPERIMENT_NOTES_DIR = config(
+    "COVER_EXPERIMENT_NOTES_DIR", default=str(BASE_DIR / "var" / "cover-feedback")
+)

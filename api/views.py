@@ -672,7 +672,7 @@ class IssueViewSet(
         inputs = CoverSearchInput(data=request.query_params)
         inputs.is_valid(raise_exception=True)
         cover_hash = inputs.validated_data["cover_hash"].lower()
-        matches, database_ms = closest_covers(cover_hash)
+        matches, diagnostics = closest_covers(cover_hash)
         issues = {
             issue.pk: issue
             for issue in Issue.objects.filter(pk__in=[row[0] for row in matches]).select_related(
@@ -695,8 +695,8 @@ class IssueViewSet(
             )
             results.append(row)
         payload = {"cover_hash": cover_hash, "count": len(results), "results": results}
-        if database_ms is not None:
-            payload["diagnostics"] = {"database_match_ms": round(database_ms, 3)}
+        if diagnostics is not None:
+            payload["diagnostics"] = diagnostics
         return Response(payload, headers={"Cache-Control": "no-store"})
 
     def get_queryset(self):

@@ -122,3 +122,5 @@ node_modules/
 # AI agents
 .claude/
 CLAUDE.md
+# Temporary CPHTest feedback (personal experiment data)
+/var/cover-feedback/

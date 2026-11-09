@@ -61,6 +61,7 @@ class CoverSearchIssueSerializer(IssueListSerializer):
 
 class CoverSearchDiagnosticsSerializer(serializers.Serializer):
     database_match_ms = serializers.FloatField(min_value=0)
+    hashes_checked = serializers.IntegerField(min_value=0)
 
 
 class CoverSearchResponseSerializer(serializers.Serializer):
@@ -75,10 +76,10 @@ def closest_covers(cover_hash):
     if value >= 2**63:
         value -= 2**64
     with connection.cursor() as cursor:
-        rows, database_ms = execute_matching(
+        rows, diagnostics = execute_matching(
             cursor,
             MATCH_SQL,
             [value],
             enabled=getattr(settings, "COVER_SEARCH_DIAGNOSTICS", False),
         )
-    return rows, database_ms
+    return rows, diagnostics

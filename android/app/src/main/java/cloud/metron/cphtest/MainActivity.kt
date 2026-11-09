@@ -33,6 +33,10 @@ class MainActivity : ComponentActivity() {
     private var job: Job?=null
     private var generation=0
     private var busy=false
+    private val feedbackControls=mutableListOf<Button>()
+    private var feedbackStatus:TextView?=null
+    private var feedbackPending=false
+    private var feedbackSubmitted=false
     private val coverFile get()=File(cacheDir,"confirmed-cover.jpg")
     private val capture=registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
         busy=false
@@ -58,6 +62,7 @@ class MainActivity : ComponentActivity() {
     private fun dp(n:Int)=(n*resources.displayMetrics.density).toInt()
     private fun screen(name:String,title:String) {
         job?.cancel();job=null;generation++;page=name
+        feedbackControls.clear();feedbackStatus=null;feedbackPending=false;feedbackSubmitted=false
         if(name=="configuration") window.addFlags(WindowManager.LayoutParams.FLAG_SECURE) else window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
         column=LinearLayout(this).apply { orientation=LinearLayout.VERTICAL;setPadding(dp(20),dp(20),dp(20),dp(20));setBackgroundColor(Color.rgb(20,25,35)) }
         val scroll=ScrollView(this).apply { isFillViewport=true;addView(column) };setContentView(scroll)
@@ -87,6 +92,24 @@ class MainActivity : ComponentActivity() {
         label("Metron API Key")
         val token=EditText(this).apply { inputType=InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD;setText(current?.token ?: "");setTextColor(Color.WHITE);setSingleLine();isSaveEnabled=false;importantForAutofill=View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS;column.addView(this) }
         label("Use the server’s LAN address for a physical phone. Emulator host: http://10.0.2.2:8000.",14f)
+        val testStatus=label("")
+        val testButton=button("Test connection") { }
+        testButton.setOnClickListener {
+            try {
+                val candidate=Connection(InstanceUrl.normalize(url.text.toString()),token.text.toString().trim())
+                require(candidate.token.isNotEmpty() && candidate.token.none { it=='\n' || it=='\r' }) { "Enter a Metron API key." }
+                testButton.isEnabled=false;testStatus.text="Testing…"
+                job=lifecycleScope.launch {
+                    try {
+                        withContext(Dispatchers.IO) { api.testConnection(candidate) }
+                        testStatus.text="Connected. Instance URL and API key accepted."
+                    } catch(e:CancellationException) { throw e }
+                    catch(e:SearchFailure) { testStatus.text=e.message }
+                    catch(_:Exception) { testStatus.text="Unable to connect. Check the address and network." }
+                    finally { testButton.isEnabled=true }
+                }
+            } catch(e:IllegalArgumentException) { testStatus.text=e.message }
+        }
         button("Save") {
             try {
                 val normalized=InstanceUrl.normalize(url.text.toString());val key=token.text.toString().trim()
@@ -158,23 +181,59 @@ class MainActivity : ComponentActivity() {
                 if(active!=generation)return@launch
                 val diag=response.optJSONObject("diagnostics")
                 status.text="Hash: ${pair.first}\nHash computation: ${ms(pair.second)} ms\nAPI round trip: ${ms(roundTrip)} ms\nDatabase match: ${if(diag?.has("database_match_ms")==true) ms(diag.getDouble("database_match_ms"))+" ms" else "diagnostics disabled"}"
+                status.append("\nCover hashes checked: ${if(diag?.has("hashes_checked")==true) diag.getLong("hashes_checked").toString() else "not supplied"}")
                 val results=response.getJSONArray("results")
                 if(results.length()==0) label("No searchable covers in this instance.")
-                for(i in 0 until results.length()) showResult(results.getJSONObject(i),i+1,connection,active)
+                for(i in 0 until results.length()) showResult(results.getJSONObject(i),FeedbackNote.rank(response,i),connection,active) {
+                    submitFeedback(response,i,pair.second,roundTrip,connection,active)
+                }
+                feedbackControls.add(button("None of these match my cover") {
+                    submitFeedback(response,null,pair.second,roundTrip,connection,active)
+                })
+                feedbackStatus=label("Select the correct cover with ✓, or report no match.",14f)
             } catch(e:CancellationException) { throw e }
             catch(e:SearchFailure) { if(active==generation) { status.text=e.message;button("Retry search") { search() } } }
             catch(_:Exception) { if(active==generation) { status.text="Search failed. Check the configured address, network, API key, and experimental endpoint.";button("Retry search") { search() } } }
         }
     }
-    private fun showResult(row:JSONObject,rank:Int,connection:Connection,active:Int) {
+    private fun showResult(row:JSONObject,rank:Int,connection:Connection,active:Int,onSelect:()->Unit) {
         val match=row.getJSONObject("matched_cover")
-        label("$rank. ${row.getString("issue")}",20f)
+        val title=label("#$rank. ${row.getString("issue")}",20f)
+        column.removeView(title)
+        val heading=LinearLayout(this).apply { orientation=LinearLayout.HORIZONTAL }
+        heading.addView(title,LinearLayout.LayoutParams(0,-2,1f))
+        val select=Button(this).apply { text="✓";contentDescription="Correct match: ${row.getString("issue")}";setOnClickListener { onSelect() } }
+        heading.addView(select,LinearLayout.LayoutParams(dp(56),dp(56)));feedbackControls.add(select)
+        column.addView(heading)
         label("Distance: ${row.getInt("distance")} / 64 bits\nCover: ${if(match.isNull("variant_id")) "standard" else "variant #"+match.getLong("variant_id")}\nMatched hash: ${match.getString("cover_hash")}",14f)
         val view=ImageView(this).apply { adjustViewBounds=true;contentDescription=row.getString("issue") };column.addView(view,LinearLayout.LayoutParams(-1,dp(300)))
         val url=match.optString("image");if(url.isBlank() || url=="null")return
         lifecycleScope.launch {
             val bitmap=withContext(Dispatchers.IO) { runCatching { api.image(connection,url)?.let { BitmapFactory.decodeByteArray(it,0,it.size) } }.getOrNull() }
             if(active==generation) view.setImageBitmap(bitmap) else bitmap?.recycle()
+        }
+    }
+    private fun submitFeedback(response:JSONObject,index:Int?,hashMs:Double,roundTrip:Double,connection:Connection,active:Int) {
+        if(feedbackPending || feedbackSubmitted || active!=generation)return
+        val note=FeedbackNote.create(response,index,hashMs,roundTrip)
+        feedbackPending=true;feedbackControls.forEach { it.isEnabled=false }
+        feedbackStatus?.text="Saving feedback…"
+        job=lifecycleScope.launch {
+            try {
+                val receipt=withContext(Dispatchers.IO) { api.sendFeedback(connection,note) }
+                if(active==generation) {
+                    feedbackSubmitted=true
+                    feedbackStatus?.text=if(index==null) "No-match feedback saved. Receipt: ${receipt.getString("id")}" else "✓ ${response.getJSONArray("results").getJSONObject(index).getString("issue")} saved at rank #${FeedbackNote.rank(response,index)}. Receipt: ${receipt.getString("id")}"
+                }
+            } catch(e:CancellationException) { throw e }
+            catch(e:Exception) {
+                if(active==generation)feedbackStatus?.text=if(e is SearchFailure) e.message else "Feedback was not confirmed. Check the connection and retry your selection."
+            } finally {
+                if(active==generation) {
+                    feedbackPending=false
+                    if(!feedbackSubmitted)feedbackControls.forEach { it.isEnabled=true }
+                }
+            }
         }
     }
     private fun ms(value:Double)=String.format(Locale.US,"%.3f",value)

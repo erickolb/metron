@@ -44,6 +44,7 @@ def test_exact_order_and_limit(corpus, api_client_with_token_credentials, settin
     assert [r["id"] for r in response.data["results"]] == [i.pk for i in corpus[:8]]
     assert [r["distance"] for r in response.data["results"]] == list(range(8))
     assert response.data["diagnostics"]["database_match_ms"] >= 0
+    assert response.data["diagnostics"]["hashes_checked"] == len(corpus)
     assert "series" in response.data["results"][0]
 
 
@@ -92,7 +93,7 @@ def test_empty_corpus_with_and_without_diagnostics(settings):
         settings.COVER_SEARCH_DIAGNOSTICS = enabled
         rows, ms = closest_covers("ffffffffffffffff")
         assert rows == []
-        assert ms is None if not enabled else ms >= 0
+        assert ms is None if not enabled else ms["database_match_ms"] >= 0
 
 
 def test_variant_hash_lifecycle_and_backfill(corpus, settings, tmp_path):
@@ -136,3 +137,12 @@ def test_sql_ranking_matches_brute_force(corpus, settings):
             )[:8]
             rows, _ = closest_covers(f"{query:016x}")
             assert [(r[1], r[0]) for r in rows] == expected
+
+
+def test_diagnostic_count_includes_all_variants_and_excludes_invalid(corpus, settings):
+    settings.COVER_SEARCH_DIAGNOSTICS = True
+    variant = Variant.objects.create(issue=corpus[0], image="")
+    Variant.objects.filter(pk=variant.pk).update(cover_hash="ffffffffffffffff")
+    Issue.objects.filter(pk=corpus[-1].pk).update(cover_hash="invalid")
+    _, diagnostics = closest_covers("0000000000000000")
+    assert diagnostics["hashes_checked"] == len(corpus)

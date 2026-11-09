@@ -1,6 +1,7 @@
 from django.urls import include, path
 from rest_framework import routers
 
+from api.experimental_notetaker import ExperimentalNotetaker
 from api.views import (
     ArcViewSet,
     CharacterViewSet,
@@ -41,4 +42,7 @@ ROUTER.register("universe", UniverseViewSet)
 ROUTER.register("variant", VariantViewset)
 
 app_name = "api"
-urlpatterns = [path("", include(ROUTER.urls))]
+urlpatterns = [
+    path("experimental/notetaker/", ExperimentalNotetaker.as_view(), name="experimental-notetaker"),
+    path("", include(ROUTER.urls)),
+]

@@ -1,0 +1,13 @@
+name: Remove temporary experiment before upstream
+on:
+  pull_request:
+    branches: [master]
+permissions:
+  contents: read
+jobs:
+  temporary-recorder-removal:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reject temporary notetaker in upstream-bound changes
+        run: python scripts/check_upstream_experiment.py

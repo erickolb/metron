@@ -1253,3 +1253,21 @@ and backfill order using its existing service configuration; on
 
 See [the experiment guide](docs/COVER_HASH_EXPERIMENT.md) for the API contract,
 performance measurement boundaries, and Android/local development setup.
+
+
+### Temporary CPHTest feedback recorder (0.2.0)
+
+Rebuild/restart the experimental server container with the update procedure above;
+there is no new database migration for this feedback change. Before recording
+feedback in a container, set `COVER_EXPERIMENT_NOTES_DIR` to a writable directory
+mounted persistently from the host (for example `/data/cover-feedback`), and ensure
+the running app user can write there. A default directory inside a disposable
+container is not durable storage. Keep these personal research files out of Git.
+Use `vi` to update the deployment environment and recreate/restart the service.
+On astralplane, all Docker invocations must use `sudo docker`/`sudo docker compose`.
+
+`COVER_EXPERIMENT_NOTETAKER_ENABLED=False` disables acceptance with HTTP 404.
+The notetaker route/module/settings and CPHTest feedback calls must be removed
+before any upstream submission; the upstream-removal CI guard deliberately blocks
+PRs to master until that cleanup is done. Confirm a successful receipt and the
+corresponding persisted JSON file before starting a test session.

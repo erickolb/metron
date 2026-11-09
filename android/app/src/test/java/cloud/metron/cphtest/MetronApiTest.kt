@@ -34,4 +34,28 @@ class MetronApiTest {
             try { InstanceUrl.normalize(url);fail(url) } catch(_:IllegalArgumentException) { }
         }
     }
+    @Test fun connectionProbeIsReadOnlyAndUsesEnteredCredentials() {
+        MockWebServer().use { server ->
+            server.enqueue(MockResponse().setBody("{\"count\":0,\"results\":[]}"))
+            MetronApi().testConnection(Connection(server.url("/").toString().trimEnd('/'),"draft-key"))
+            val request=server.takeRequest()
+            assertEquals("GET",request.method);assertEquals("/api/issue/?series_id=0",request.path)
+            assertEquals("Bearer draft-key",request.getHeader("Authorization"))
+        }
+    }
+    @Test fun postsFeedbackAndRequiresSuccessfulReceipt() {
+        MockWebServer().use { server ->
+            server.enqueue(MockResponse().setResponseCode(201).setBody("{\"id\":\"test-receipt\"}"))
+            server.enqueue(MockResponse().setResponseCode(503))
+            val connection=Connection(server.url("/").toString().trimEnd('/'),"unit-test-key")
+            val note=org.json.JSONObject("{\"outcome\":\"no_match\"}")
+            val api=MetronApi()
+            assertEquals("test-receipt",api.sendFeedback(connection,note).getString("id"))
+            val request=server.takeRequest()
+            assertEquals("POST",request.method);assertEquals("/api/experimental/notetaker/",request.path)
+            assertEquals(note.toString(),request.body.readUtf8())
+            assertEquals("Bearer unit-test-key",request.getHeader("Authorization"))
+            try { api.sendFeedback(connection,note);fail() } catch(_:SearchFailure) { }
+        }
+    }
 }

@@ -1,6 +1,6 @@
 # CPHTest — Cover Perceptual Hash Test
 
-A display-only Android experiment for Metron nearest-cover search. Application ID: `cloud.metron.cphtest`; version 0.1.0 (1).
+An Android experiment for Metron nearest-cover search. Application ID: `cloud.metron.cphtest`; version 0.2.0 (2).
 
 ## Android Studio
 
@@ -30,3 +30,21 @@ The debug APK is `app/build/outputs/apk/debug/app-debug.apk`. No phone installat
 ```
 
 The hash source and tests are platform-independent Kotlin. The API tests use MockWebServer; they never read real credentials or call a live Metron instance. Library licenses remain with their respective authors (AndroidX/OkHttp Apache 2.0, Google ML Kit terms); the enclosing Metron repository license applies to this client source.
+
+## Temporary feedback (0.2.0)
+
+On the result screen, use the checkmark beside the correct comic, or the bottom
+**None of these match my cover** button. The server receipt confirms that feedback
+was saved. Controls are disabled while saving and after acknowledgement; a failed
+submission keeps the results available for retry. No feedback is sent automatically.
+
+Rank honors ties using competition ranking: distances 8, 8, 10 give ranks 1, 1, 3.
+The note also includes the original one-based array position, selected result and
+matched cover, bit distance, search hash, original diagnostics (including
+`hashes_checked`), client timings, and the complete returned candidate list.
+
+Configuration's **Test connection** uses the currently entered URL/key without
+saving them. It performs a read-only empty issue-list request (`series_id=0`).
+
+**The notetaker and feedback submission code are temporary and must be removed
+before upstream submission.** See [the experiment guide](../docs/COVER_HASH_EXPERIMENT.md).

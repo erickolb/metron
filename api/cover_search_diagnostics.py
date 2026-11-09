@@ -18,6 +18,12 @@ def execute_matching(cursor, sql, params, *, enabled):
         "WHERE cover_hash_int IS NOT NULL",
         "WHERE cover_hash_int IS NOT NULL AND (SELECT started FROM experimental_clock) IS NOT NULL",
     )
+    # Count cover rows in the existing aggregation, without another catalog scan.
+    sql = sql.replace(
+        "SELECT issue_id, min(distance) AS distance FROM candidates",
+        "SELECT issue_id, min(distance) AS distance, "
+        "sum(count(*)) OVER () AS hashes_checked FROM candidates",
+    ).replace("SELECT r.issue_id, r.distance,", "SELECT r.hashes_checked, r.issue_id, r.distance,")
     # Only trusted static SQL is composed here; the input hash stays parameterized.
     cursor.execute(
         "WITH " + clock + "experimental_matches AS MATERIALIZED (WITH " + sql + ") "
@@ -32,4 +38,7 @@ def execute_matching(cursor, sql, params, *, enabled):
     return [
         tuple(m[k] for k in ("issue_id", "distance", "variant_id", "image", "hash"))
         for m in matches
-    ], float(elapsed)
+    ], {
+        "database_match_ms": round(float(elapsed), 3),
+        "hashes_checked": int(matches[0]["hashes_checked"]) if matches else 0,
+    }
