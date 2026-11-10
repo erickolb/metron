@@ -29,7 +29,8 @@ ranked AS MATERIALIZED (
 SELECT r.issue_id, r.distance, c.variant_id, c.image, c.hash
 FROM ranked r CROSS JOIN input CROSS JOIN LATERAL (
     SELECT * FROM (
-        SELECT NULL::bigint AS variant_id, image, cover_hash AS hash,
+        SELECT NULL::bigint AS variant_id,
+               COALESCE(NULLIF(image, ''), cover_source_url) AS image, cover_hash AS hash,
                bit_count((cover_hash_int # input.target)::bit(64)) AS distance
         FROM comicsdb_issue WHERE id = r.issue_id AND cover_hash_int IS NOT NULL
         UNION ALL

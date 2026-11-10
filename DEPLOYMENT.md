@@ -1271,3 +1271,12 @@ The notetaker route/module/settings and CPHTest feedback calls must be removed
 before any upstream submission; the upstream-removal CI guard deliberately blocks
 PRs to master until that cleanup is done. Confirm a successful receipt and the
 corresponding persisted JSON file before starting a test session.
+
+
+### Metadata-only cover source URLs
+
+This update adds `Issue.cover_source_url` (migration 0063, including history).
+Use the experimental container update procedure above: back up, rebuild, stop
+the web service, apply migrations, and start the new container. No image backfill
+or image download is required for URL-only imports. Issue list/detail and cover
+search responses use the source URL when the local image field is empty.

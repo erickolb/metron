@@ -104,3 +104,16 @@ master until the notetaker module is removed. Run
 remove the route, module, recorder settings, and client feedback calls first.
 Disabling the recorder is not sufficient. Keep collected notes out of upstream
 commits and preserve them privately for analysis.
+
+## Metadata-only cover imports
+
+`Issue.cover_source_url` stores the upstream image URL separately from a local
+image file. A record may have an empty `image` file field and a populated
+`cover_source_url` plus `cover_hash`. Issue list/detail API responses fall back
+to that URL; cover search returns it in `matched_cover.image`. CPHTest already
+supports artwork from Metron's image host. No image is downloaded by the server
+while importing or matching these records. The supplied hash is preserved during
+subsequent metadata saves. Existing locally stored covers continue to work.
+
+Apply migration 0063 before running this branch with URL-only records. Such
+records count as searchable cover hashes even though no local file exists.

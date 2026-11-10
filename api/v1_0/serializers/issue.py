@@ -173,7 +173,17 @@ class IssueListSeriesSerializer(serializers.ModelSerializer):
         fields = ("id", "name", "volume", "year_began")
 
 
+class IssueCoverImageField(serializers.ImageField):
+    """Use the upstream cover URL when no local artwork was imported."""
+
+    def to_representation(self, value):
+        if not value:
+            return getattr(value.instance, "cover_source_url", "") or None
+        return super().to_representation(value)
+
+
 class IssueListSerializer(serializers.ModelSerializer):
+    image = IssueCoverImageField(read_only=True)
     issue = serializers.CharField(source="__str__")
     series = IssueListSeriesSerializer(read_only=True)
 
@@ -319,6 +329,7 @@ class IssueSerializer(ModelCleanMixin, serializers.ModelSerializer):
 
 
 class IssueReadSerializer(serializers.ModelSerializer):
+    image = IssueCoverImageField(read_only=True)
     price = PriceField(read_only=True)
     price_currency = serializers.SerializerMethodField()
     variants = VariantsIssueSerializer("variants", many=True, read_only=True)

@@ -72,6 +72,7 @@ class Issue(CommonInfo):
     )
     page = models.PositiveSmallIntegerField(_("Page Count"), null=True, blank=True)
     image = ImageField(_("Cover"), upload_to="issue/%Y/%m/%d/", blank=True)
+    cover_source_url = models.URLField("Source Cover URL", max_length=2048, blank=True)
     cover_hash = models.CharField(_("Cover Hash"), max_length=16, blank=True)
     cover_hash_int = hash_integer_field()
     desc_is_solicitation = models.BooleanField(
@@ -247,6 +248,9 @@ def generate_cover_hash(instance: Issue) -> str:
 
 
 def pre_save_cover_hash(sender, instance: Issue, *args, **kwargs) -> None:
+    if not instance.image and instance.cover_source_url:
+        # Metadata-only imports retain the supplied hash without downloading artwork.
+        return
     if instance.image:
         # Skip S3 download if the image field hasn't changed
         if instance.pk:

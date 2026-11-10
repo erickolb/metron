@@ -146,3 +146,27 @@ def test_diagnostic_count_includes_all_variants_and_excludes_invalid(corpus, set
     Issue.objects.filter(pk=corpus[-1].pk).update(cover_hash="invalid")
     _, diagnostics = closest_covers("0000000000000000")
     assert diagnostics["hashes_checked"] == len(corpus)
+
+
+def test_source_only_cover_retains_hash_and_returns_remote_url(corpus, api_client_with_credentials):
+    issue = corpus[0]
+    source = "https://static.metron.cloud/media/issue/2026/11/09/remote.jpg"
+    Issue.objects.filter(pk=issue.pk).update(
+        cover_source_url=source, cover_hash="8000000000000000", image=""
+    )
+    issue.refresh_from_db()
+    issue.desc = "Metadata-only update"
+    issue.save()
+    issue.refresh_from_db()
+    assert issue.cover_hash == "8000000000000000"
+    assert not issue.image
+    response = api_client_with_credentials.get(
+        reverse("api:issue-cover-search"), {"cover_hash": issue.cover_hash}
+    )
+    assert response.status_code == 200
+    row = next(r for r in response.data["results"] if r["id"] == issue.pk)
+    assert row["image"] == source
+    assert row["matched_cover"]["image"] == source
+    assert row["distance"] == 0
+    response = api_client_with_credentials.get(reverse("api:issue-detail", kwargs={"pk": issue.pk}))
+    assert response.data["image"] == source

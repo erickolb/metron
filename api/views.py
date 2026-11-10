@@ -684,7 +684,11 @@ class IssueViewSet(
             if issue_id not in issues:
                 continue  # A concurrent deletion must not break the whole response.
             row = dict(IssueListSerializer(issues[issue_id], context={"request": request}).data)
-            image_url = Issue._meta.get_field("image").storage.url(image) if image else None
+            image_url = (
+                image
+                if image.startswith(("https://", "http://"))
+                else (Issue._meta.get_field("image").storage.url(image) if image else None)
+            )
             row.update(
                 distance=distance,
                 matched_cover={
