@@ -49,3 +49,5 @@ The project is fairly new compared to the other databases, so it might not meet 
 * [League of Comic Geeks](https://leagueofcomicgeeks.com/) - Has an API that is only available to retailers, and they
   seem to have zero interest in opening access to their community.
 * [Comic Vine](https://comicvine.gamespot.com/) - Publicly available API.
+
+Rendered report: [Metron-CPH-Experiment](https://erickolb.github.io/metron/Metron-CPH-Experiment/). GitHub Pages updates automatically when report files change on this experimental branch.

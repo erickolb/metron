@@ -144,3 +144,5 @@ attempts reconstructed for that comic, without adding the human retry delay.
 ## Validation Exclusion
 
 Trial 7 (Absolute Wonder Woman #12 variant) and original attempts 8 and 9 are excluded from all charts, outcome/rank statistics, and timing statistics because the user confirmed the cover was not represented in Metron. Raw notes are retained unchanged. Included sample: 138 comic trials and 167 attempts.
+
+Rendered report: [Metron-CPH-Experiment](https://erickolb.github.io/metron/Metron-CPH-Experiment/). GitHub Pages updates automatically when report files change on this experimental branch.

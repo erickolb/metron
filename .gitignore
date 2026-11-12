@@ -124,3 +124,6 @@ node_modules/
 CLAUDE.md
 # Temporary CPHTest feedback (personal experiment data)
 /var/cover-feedback/
+
+# Generated experimental report site
+/_site/
