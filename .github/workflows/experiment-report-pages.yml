@@ -2,7 +2,7 @@ name: Publish Experiment Report
 
 on:
   push:
-    branches: [codex/perceptual-hash-experiments]
+    branches: [experiment/perceptual-hash-matching]
     paths:
       - 'Report/**'
       - 'scripts/build_experiment_pages.py'
