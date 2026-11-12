@@ -1,3 +1,13 @@
+# Metron — Experimental Branch
+
+**This is an experimental branch** for testing an implementation that compares perceptual hashes of comic-book covers to facilitate image-based search.
+
+The code is **neither fit nor intended to be a candidate for merging upstream**. It includes experimental diagnostics, the CPHTest Android client, and a temporary feedback recorder. No upstream PR or merge should be proposed from this branch. The temporary recorder, client feedback submission code, settings, and research data must be removed from any future upstream change; disabling the endpoint is insufficient.
+
+The research report and accompanying data, images, and attachments are available in [Report](Report/README.md). Open [perceptual-hash-experiment-report.html](Report/perceptual-hash-experiment-report.html) in a browser to view the report.
+
+---
+
 # Metron
 
 A community created comic-book database.

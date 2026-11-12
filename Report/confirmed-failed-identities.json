@@ -1,0 +1,58 @@
+{
+  "6": {
+    "issue": "Absolute Wonder Woman (2024) #6",
+    "issue_id": null,
+    "source": "User confirmed in chat on 2026-11-11",
+    "note": "User corrected the earlier guess to Absolute Wonder Woman #6 and confirmed it was absent from Danger Room during scanning, then added afterward. This does not by itself establish whether the local search catalog contained the issue."
+  },
+  "7": {
+    "issue": "Absolute Wonder Woman (2024) #12",
+    "issue_id": 152767,
+    "source": "User confirmed in chat on 2026-11-11",
+    "coverage_status": "exact_cover_not_in_metron",
+    "coverage_evidence": "User confirmed in chat on 2026-11-11 that the owned Absolute Wonder Woman #12 variant is not in Metron.",
+    "note": "The scanned Absolute Wonder Woman #12 variant was not represented in Metron, according to the user. Trial 7 and its two attempts are excluded from all reported results and timing statistics at the user\u2019s request; the original records remain in the archive and validation audit."
+  },
+  "55": {
+    "issue": "Absolute Green Arrow (2026) #3",
+    "issue_id": 171591,
+    "source": "User confirmed in chat on 2026-11-11"
+  },
+  "58": {
+    "issue": "Buffy the Vampire Slayer Season Eight (2007) #1",
+    "issue_id": 119625,
+    "source": "User confirmed in chat on 2026-11-11"
+  },
+  "60": {
+    "issue": "Buffy the Vampire Slayer Season Eight (2007) #3",
+    "issue_id": 119627,
+    "source": "User confirmed in chat on 2026-11-11"
+  },
+  "61": {
+    "issue": "Buffy the Vampire Slayer Season Eight (2007) #4",
+    "issue_id": 119628,
+    "source": "User confirmed in chat on 2026-11-11"
+  },
+  "86": {
+    "issue": "Fables (2022) #158",
+    "issue_id": null,
+    "source": "User confirmed in chat on 2026-11-11",
+    "note": "User reported a Danger Room collection omission and will correct it themselves."
+  },
+  "87": {
+    "issue": "Fables (2022) #159",
+    "issue_id": null,
+    "source": "User confirmed in chat on 2026-11-11",
+    "note": "User reported a Danger Room collection omission and will correct it themselves."
+  },
+  "93": {
+    "issue": "Guardians of the Galaxy (2023) #1",
+    "issue_id": 60683,
+    "source": "User confirmed in chat on 2026-11-11"
+  },
+  "109": {
+    "issue": "Monstress (2015) #37",
+    "issue_id": 60375,
+    "source": "User confirmed in chat on 2026-11-11"
+  }
+}

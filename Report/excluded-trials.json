@@ -1,0 +1,12 @@
+{
+  "7": {
+    "issue": "Absolute Wonder Woman (2024) #12 \u2014 unrepresented variant",
+    "reason": "User confirmed the scanned variant is not in Metron and requested excluding this trial from results. No exact-cover reference hash was available.",
+    "attempt_indices": [
+      8,
+      9
+    ],
+    "scope": "Exclude the comic and both attempts from outcome rates, rank frequency, and all timing statistics; retain original notes and audit records.",
+    "source": "User instruction in chat on 2026-11-11"
+  }
+}

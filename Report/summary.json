@@ -1,0 +1,180 @@
+{
+  "date_local": "2026-11-11",
+  "timezone": "America/New_York (EST, UTC-05:00 for this session)",
+  "start_local": "2026-11-11T16:03:30.079441-05:00",
+  "end_local": "2026-11-11T17:21:13.690640-05:00",
+  "raw_notes": 169,
+  "included_attempts": 167,
+  "raw_comic_trials": 139,
+  "matches": 127,
+  "no_match_attempts": 40,
+  "reconstructed_comic_trials": 138,
+  "first_scan_successes": 109,
+  "second_scan_only_successes": 18,
+  "failures_after_two": 11,
+  "retried_comics": 29,
+  "first_scan_success_percent": 78.98550724637681,
+  "success_within_two_percent": 92.02898550724638,
+  "failure_after_two_percent": 7.971014492753623,
+  "retry_rescue_percent": 62.06896551724138,
+  "rank_counts": {
+    "1": 122,
+    "2": 3,
+    "3": 2,
+    "4": 0,
+    "5": 0,
+    "6": 0,
+    "7": 0,
+    "8": 0
+  },
+  "rank1_percent_all_trials": 88.40579710144928,
+  "rank1_percent_successful_trials": 96.06299212598425,
+  "hashes_checked_per_attempt": 40112,
+  "distinct_selected_issue_ids": 127,
+  "timing_per_attempt_ms": [
+    {
+      "metric": "Android Client Hash Processing",
+      "n": 167,
+      "min_ms": 182.330077,
+      "max_ms": 284.136769,
+      "mean_ms": 230.79532199401197,
+      "median_ms": 232.120615
+    },
+    {
+      "metric": "Postgres Hash Search",
+      "n": 167,
+      "min_ms": 42.983,
+      "max_ms": 86.272,
+      "mean_ms": 47.31708383233533,
+      "median_ms": 45.43
+    },
+    {
+      "metric": "API Round Trip",
+      "n": 167,
+      "min_ms": 178.138693,
+      "max_ms": 412.618231,
+      "mean_ms": 219.38040353293414,
+      "median_ms": 205.241615
+    },
+    {
+      "metric": "User Experience",
+      "n": 167,
+      "min_ms": 373.494539,
+      "max_ms": 684.621615,
+      "mean_ms": 450.1757255269461,
+      "median_ms": 441.72299899999996
+    }
+  ],
+  "timing_total_work_per_comic_ms": [
+    {
+      "metric": "Android Client Hash Processing",
+      "n": 138,
+      "min_ms": 182.330077,
+      "max_ms": 544.565615,
+      "mean_ms": 279.2957882101449,
+      "median_ms": 241.402423
+    },
+    {
+      "metric": "Postgres Hash Search",
+      "n": 138,
+      "min_ms": 43.05,
+      "max_ms": 129.53199999999998,
+      "mean_ms": 57.26052898550725,
+      "median_ms": 46.516999999999996
+    },
+    {
+      "metric": "API Round Trip",
+      "n": 138,
+      "min_ms": 178.138693,
+      "max_ms": 620.5567699999999,
+      "mean_ms": 265.48208253623187,
+      "median_ms": 214.89619199999999
+    },
+    {
+      "metric": "User Experience",
+      "n": 138,
+      "min_ms": 373.494539,
+      "max_ms": 1165.1223850000001,
+      "mean_ms": 544.7778707463768,
+      "median_ms": 457.059654
+    }
+  ],
+  "pairing_limitation": "Trials are reconstructed from chronological records and the stated policy. Failure notes contain no intended comic/session ID. Later user confirmations identify 9 included failed comics; 2 remain unidentified. Assumes every attempt was recorded and the policy was followed without exceptions.",
+  "scope_limitation": "Descriptive results for this one session, not a randomized benchmark or general accuracy estimate. Only user-confirmed failed identities enter the report; sequence-based guesses remain separate. The user-requested coverage exclusion is documented; no timing outliers or other attempts are excluded.",
+  "confirmed_failed_identities": {
+    "6": {
+      "issue": "Absolute Wonder Woman (2024) #6",
+      "issue_id": null,
+      "source": "User confirmed in chat on 2026-11-11",
+      "note": "User corrected the earlier guess to Absolute Wonder Woman #6 and confirmed it was absent from Danger Room during scanning, then added afterward. This does not by itself establish whether the local search catalog contained the issue."
+    },
+    "7": {
+      "issue": "Absolute Wonder Woman (2024) #12",
+      "issue_id": 152767,
+      "source": "User confirmed in chat on 2026-11-11",
+      "coverage_status": "exact_cover_not_in_metron",
+      "coverage_evidence": "User confirmed in chat on 2026-11-11 that the owned Absolute Wonder Woman #12 variant is not in Metron.",
+      "note": "The scanned Absolute Wonder Woman #12 variant was not represented in Metron, according to the user. Trial 7 and its two attempts are excluded from all reported results and timing statistics at the user’s request; the original records remain in the archive and validation audit."
+    },
+    "55": {
+      "issue": "Absolute Green Arrow (2026) #3",
+      "issue_id": 171591,
+      "source": "User confirmed in chat on 2026-11-11"
+    },
+    "58": {
+      "issue": "Buffy the Vampire Slayer Season Eight (2007) #1",
+      "issue_id": 119625,
+      "source": "User confirmed in chat on 2026-11-11"
+    },
+    "60": {
+      "issue": "Buffy the Vampire Slayer Season Eight (2007) #3",
+      "issue_id": 119627,
+      "source": "User confirmed in chat on 2026-11-11"
+    },
+    "61": {
+      "issue": "Buffy the Vampire Slayer Season Eight (2007) #4",
+      "issue_id": 119628,
+      "source": "User confirmed in chat on 2026-11-11"
+    },
+    "86": {
+      "issue": "Fables (2022) #158",
+      "issue_id": null,
+      "source": "User confirmed in chat on 2026-11-11",
+      "note": "User reported a Danger Room collection omission and will correct it themselves."
+    },
+    "87": {
+      "issue": "Fables (2022) #159",
+      "issue_id": null,
+      "source": "User confirmed in chat on 2026-11-11",
+      "note": "User reported a Danger Room collection omission and will correct it themselves."
+    },
+    "93": {
+      "issue": "Guardians of the Galaxy (2023) #1",
+      "issue_id": 60683,
+      "source": "User confirmed in chat on 2026-11-11"
+    },
+    "109": {
+      "issue": "Monstress (2015) #37",
+      "issue_id": 60375,
+      "source": "User confirmed in chat on 2026-11-11"
+    }
+  },
+  "unidentified_failed_trials": 2,
+  "excluded_trials": {
+    "7": {
+      "issue": "Absolute Wonder Woman (2024) #12 — unrepresented variant",
+      "reason": "User confirmed the scanned variant is not in Metron and requested excluding this trial from results. No exact-cover reference hash was available.",
+      "attempt_indices": [
+        8,
+        9
+      ],
+      "scope": "Exclude the comic and both attempts from outcome rates, rank frequency, and all timing statistics; retain original notes and audit records.",
+      "source": "User instruction in chat on 2026-11-11"
+    }
+  },
+  "excluded_attempts": 2,
+  "confirmed_included_failed_identities": 9,
+  "known_unrepresented_cover_trials": [
+    7
+  ]
+}
